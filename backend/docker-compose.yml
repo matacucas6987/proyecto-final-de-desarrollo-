@@ -1,0 +1,41 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: biblioteca-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+      - FRONTEND_URL=http://localhost:5173
+      - DATABASE_URL=${DATABASE_URL}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - biblioteca-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: biblioteca-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3000/api}
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    networks:
+      - biblioteca-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  biblioteca-network:
+    driver: bridge

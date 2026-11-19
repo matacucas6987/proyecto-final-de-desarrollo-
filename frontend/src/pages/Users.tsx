@@ -20,6 +20,11 @@ import {
   Power,
   Mail,
   Layers,
+  KeyRound,
+  Copy,
+  Check,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 export const Users: React.FC = () => {
@@ -44,6 +49,63 @@ export const Users: React.FC = () => {
     academicPlan: '',
     semester: 1,
   });
+
+  // Modal de Contraseña para Administrador
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState<boolean>(false);
+  const [selectedUserForPassword, setSelectedUserForPassword] = useState<User | null>(null);
+  const [adminNewPassword, setAdminNewPassword] = useState<string>('');
+  const [showAdminPassword, setShowAdminPassword] = useState<boolean>(true);
+  const [savingPassword, setSavingPassword] = useState<boolean>(false);
+  const [copiedToClipboard, setCopiedToClipboard] = useState<boolean>(false);
+
+  const generateRandomPassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%*';
+    let result = '';
+    for (let i = 0; i < 10; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setAdminNewPassword(result);
+    setCopiedToClipboard(false);
+  };
+
+  const handleOpenPasswordModal = (targetUser: User) => {
+    setSelectedUserForPassword(targetUser);
+    generateRandomPassword();
+    setIsPasswordModalOpen(true);
+  };
+
+  const handleCopyPassword = () => {
+    if (adminNewPassword) {
+      navigator.clipboard.writeText(adminNewPassword);
+      setCopiedToClipboard(true);
+      setTimeout(() => setCopiedToClipboard(false), 2500);
+    }
+  };
+
+  const handleSaveAdminPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUserForPassword) return;
+
+    if (!adminNewPassword.trim() || adminNewPassword.trim().length < 6) {
+      error('La contraseña debe tener al menos 6 caracteres.', 'Validación');
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      await usersService.adminResetPassword(selectedUserForPassword.id, adminNewPassword.trim());
+      success(
+        `Contraseña de ${selectedUserForPassword.fullName} actualizada exitosamente.`,
+        'Contraseña Modificada',
+      );
+      setIsPasswordModalOpen(false);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Error al actualizar contraseña';
+      error(msg, 'Error');
+    } finally {
+      setSavingPassword(false);
+    }
+  };
 
   const roles = [
     { role: UserRole.ESTUDIANTE, label: 'Estudiantes', icon: <GraduationCap className="w-4 h-4" /> },
@@ -412,6 +474,16 @@ export const Users: React.FC = () => {
                           </button>
                           {isAdmin && (
                             <button
+                              onClick={() => handleOpenPasswordModal(item)}
+                              className="px-2.5 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors inline-flex items-center gap-1"
+                              title="Ver / Cambiar contraseña del usuario"
+                            >
+                              <KeyRound className="w-3.5 h-3.5 text-indigo-600" />
+                              <span>Clave</span>
+                            </button>
+                          )}
+                          {isAdmin && (
+                            <button
                               onClick={() => handleDelete(item.id, item.fullName)}
                               className="px-2 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-lg transition-colors inline-flex items-center gap-1"
                               title="Eliminar usuario (Solo Admin)"
@@ -581,6 +653,108 @@ export const Users: React.FC = () => {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Modal Cambiar Contraseña de Usuario (Solo Administrador) */}
+      <Modal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        title="Gestión de Contraseña de Usuario"
+        subtitle="Como Administrador General, puede asignar o restablecer la contraseña de cualquier usuario."
+        maxWidth="md"
+      >
+        {selectedUserForPassword && (
+          <form onSubmit={handleSaveAdminPassword} className="space-y-4">
+            {/* Resumen del usuario */}
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+              <div>
+                <span className="font-bold text-slate-800 block text-sm">
+                  {selectedUserForPassword.fullName}
+                </span>
+                <span className="text-slate-500">
+                  {selectedUserForPassword.email} • Código: {selectedUserForPassword.code}
+                </span>
+              </div>
+              <Badge variant="neutral">{selectedUserForPassword.role}</Badge>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Nueva Contraseña para el Usuario
+                </label>
+                <button
+                  type="button"
+                  onClick={generateRandomPassword}
+                  className="text-xs text-indigo-600 hover:text-indigo-800 font-medium hover:underline flex items-center gap-1"
+                >
+                  <KeyRound className="w-3.5 h-3.5" />
+                  <span>Generar Clave Aleatoria</span>
+                </button>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showAdminPassword ? 'text' : 'password'}
+                  required
+                  value={adminNewPassword}
+                  onChange={(e) => setAdminNewPassword(e.target.value)}
+                  placeholder="Ingrese nueva contraseña..."
+                  className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-mono text-slate-900 pr-20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <div className="absolute inset-y-0 right-0 pr-2 flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handleCopyPassword}
+                    title="Copiar contraseña al portapapeles"
+                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  >
+                    {copiedToClipboard ? (
+                      <Check className="w-4 h-4 text-emerald-600" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminPassword(!showAdminPassword)}
+                    title={showAdminPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+                  >
+                    {showAdminPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              {copiedToClipboard && (
+                <p className="text-[11px] text-emerald-600 font-medium mt-1">
+                  ✓ Contraseña copiada al portapapeles.
+                </p>
+              )}
+            </div>
+
+            <p className="text-[11px] text-slate-500">
+              * La contraseña se guardará encriptada con algoritmo Bcrypt en la base de datos de Neon y tendrá vigencia inmediata para el usuario.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setIsPasswordModalOpen(false)}
+                disabled={savingPassword}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" variant="primary" isLoading={savingPassword}>
+                Guardar Contraseña
+              </Button>
+            </div>
+          </form>
+        )}
       </Modal>
     </div>
   );

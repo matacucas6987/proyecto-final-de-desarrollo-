@@ -1,6 +1,8 @@
 import {
   Injectable,
   UnauthorizedException,
+  BadRequestException,
+  NotFoundException,
   Logger,
   OnModuleInit,
 } from '@nestjs/common';
@@ -11,6 +13,7 @@ import * as bcrypt from 'bcryptjs';
 import { User } from '../users/entities/user.entity';
 import { UserRole } from '../users/enums/user-role.enum';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -151,5 +154,40 @@ export class AuthService implements OnModuleInit {
 
     delete user.password;
     return user;
+  }
+
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<{ success: boolean; message: string }> {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.id = :id', { id: userId })
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado.');
+    }
+
+    if (!user.password) {
+      throw new BadRequestException('El usuario no posee una contraseña previa asignada.');
+    }
+
+    const isMatch = await bcrypt.compare(
+      changePasswordDto.currentPassword,
+      user.password,
+    );
+    if (!isMatch) {
+      throw new BadRequestException('La contraseña actual es incorrecta.');
+    }
+
+    user.password = await bcrypt.hash(changePasswordDto.newPassword.trim(), 10);
+    await this.userRepository.save(user);
+
+    return {
+      success: true,
+      message: 'Contraseña actualizada exitosamente.',
+    };
   }
 }

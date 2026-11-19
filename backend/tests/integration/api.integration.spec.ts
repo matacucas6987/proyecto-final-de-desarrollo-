@@ -1,3 +1,8 @@
+import * as dns from 'dns';
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch {}
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
@@ -5,7 +10,7 @@ import { AppModule } from '../../src/app.module';
 import { AllExceptionsFilter } from '../../src/common/filters/http-exception.filter';
 import { TransformInterceptor } from '../../src/common/interceptors/transform.interceptor';
 
-describe('SIGB Universidad de Madeira - Suite de Pruebas de Integración (8 Casos E2E/API)', () => {
+describe('SIGB Universidad de Madeira - Suite de Pruebas de Integración (10 Casos E2E/API)', () => {
   let app: INestApplication;
   let adminToken: string;
   let adminId: string;
@@ -277,5 +282,74 @@ describe('SIGB Universidad de Madeira - Suite de Pruebas de Integración (8 Caso
 
     expect(payRes.body.data.status).toBe('PAGADA');
     expect(payRes.body.data.paidAt).toBeDefined();
+  });
+
+  it('IT-09 [Seguridad - Cambio Propio de Contraseña]: Un usuario autenticado debe cambiar su propia contraseña verificando la actual', async () => {
+    // 1. Intento con contraseña actual incorrecta -> 400 Bad Request
+    await request(app.getHttpServer())
+      .patch('/api/auth/change-password')
+      .set('Authorization', `Bearer ${librarianToken}`)
+      .send({
+        currentPassword: 'IncorrectPassword!',
+        newPassword: 'NewLibrarianPass2026*',
+      })
+      .expect(400);
+
+    // 2. Cambio exitoso con contraseña actual correcta
+    const changeRes = await request(app.getHttpServer())
+      .patch('/api/auth/change-password')
+      .set('Authorization', `Bearer ${librarianToken}`)
+      .send({
+        currentPassword: 'BiblioPass2026*',
+        newPassword: 'NewLibrarianPass2026*',
+      })
+      .expect(200);
+
+    expect(changeRes.body.success).toBe(true);
+
+    // 3. Verificar que ahora inicia sesión con la nueva contraseña
+    const reLogin = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        identifier: testLibEmail,
+        password: 'NewLibrarianPass2026*',
+      })
+      .expect(201);
+
+    expect(reLogin.body.data.accessToken).toBeDefined();
+    librarianToken = reLogin.body.data.accessToken;
+  });
+
+  it('IT-10 [Admin - Gestión Global de Contraseñas]: El Administrador debe poder cambiar la contraseña de cualquier usuario sin clave previa', async () => {
+    // 1. Intento de usuario no administrador -> 403 Forbidden
+    await request(app.getHttpServer())
+      .patch(`/api/users/${adminId}/admin-password`)
+      .set('Authorization', `Bearer ${librarianToken}`)
+      .send({
+        password: 'HackerPassword123*',
+      })
+      .expect(403);
+
+    // 2. El Administrador cambia la contraseña del bibliotecario
+    const adminChangeRes = await request(app.getHttpServer())
+      .patch(`/api/users/${createdLibrarianId}/admin-password`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        password: 'AdminForcedLib2026*',
+      })
+      .expect(200);
+
+    expect(adminChangeRes.body.success).toBe(true);
+
+    // 3. El bibliotecario inicia sesión exitosamente con la contraseña asignada por el Administrador
+    const reLoginAdminSet = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        identifier: testLibEmail,
+        password: 'AdminForcedLib2026*',
+      })
+      .expect(201);
+
+    expect(reLoginAdminSet.body.data.accessToken).toBeDefined();
   });
 });

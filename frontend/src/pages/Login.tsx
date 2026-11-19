@@ -8,9 +8,7 @@ import {
   User as UserIcon,
   Eye,
   EyeOff,
-  ShieldCheck,
   ArrowRight,
-  Sparkles,
 } from 'lucide-react';
 
 export const Login: React.FC = () => {
@@ -63,12 +61,6 @@ export const Login: React.FC = () => {
     }
   };
 
-  const autofillAdmin = () => {
-    setIdentifier('admin@uma.pt');
-    setPassword('Admin123*');
-    setErrorMessage(null);
-  };
-
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background glow effects */}
@@ -119,7 +111,7 @@ export const Login: React.FC = () => {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="admin@uma.pt ó ADMIN01"
+                  placeholder="ejemplo@uma.pt ó MAT12345"
                   className="block w-full pl-10 pr-3 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                 />
               </div>
@@ -171,40 +163,6 @@ export const Login: React.FC = () => {
               </button>
             </div>
           </form>
-
-          {/* Helper Card with Admin Credentials */}
-          <div className="mt-6 pt-5 border-t border-slate-800">
-            <div className="bg-indigo-950/40 border border-indigo-900/60 rounded-xl p-3.5">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-indigo-300">
-                  <ShieldCheck className="w-4 h-4 text-indigo-400" />
-                  <span>Cuenta de Administrador Inicial</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={autofillAdmin}
-                  className="text-[11px] font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 bg-indigo-900/40 hover:bg-indigo-900/70 px-2 py-0.5 rounded border border-indigo-700/50 transition-colors"
-                >
-                  <Sparkles className="w-3 h-3" />
-                  <span>Autocompletar</span>
-                </button>
-              </div>
-              <div className="text-xs space-y-1 text-slate-300 font-mono">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Correo:</span>
-                  <span className="font-semibold text-white">admin@uma.pt</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Código:</span>
-                  <span className="font-semibold text-white">ADMIN01</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Contraseña:</span>
-                  <span className="font-semibold text-emerald-400">Admin123*</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Roles note footer */}

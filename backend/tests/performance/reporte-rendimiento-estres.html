@@ -23,7 +23,7 @@
   <div class="container">
     <header>
       <h1>Informe de Pruebas de Rendimiento y Estrés — SIGB Universidad de Madeira</h1>
-      <p class="subtitle">Entorno: Node.js v24 + NestJS 10 + PostgreSQL Neon Pooler (AWS us-east-2) | Fecha: 2026-11-19T04:12:46.035Z</p>
+      <p class="subtitle">Entorno: Node.js v24 + NestJS 10 + PostgreSQL Neon Pooler (AWS us-east-2) | Fecha: 2026-11-19T06:53:34.610Z</p>
     </header>
 
     <div class="grid">
@@ -57,28 +57,28 @@
             <td><strong>Rendimiento 20 VUs</strong></td>
             <td>20</td>
             <td>60</td>
-            <td>530.14 ms</td>
-            <td>282.79 ms</td>
-            <td><strong>2223.51 ms</strong></td>
-            <td>12.91 req/s</td>
+            <td>362.11 ms</td>
+            <td>218.7 ms</td>
+            <td><strong>775.45 ms</strong></td>
+            <td>48.5 req/s</td>
             <td><span class="badge-ok">0%</span></td>
           </tr><tr>
             <td><strong>Rendimiento 35 VUs</strong></td>
             <td>35</td>
             <td>105</td>
-            <td>298.94 ms</td>
-            <td>299.99 ms</td>
-            <td><strong>373.6 ms</strong></td>
-            <td>99.46 req/s</td>
+            <td>300.99 ms</td>
+            <td>300.89 ms</td>
+            <td><strong>387.32 ms</strong></td>
+            <td>100.55 req/s</td>
             <td><span class="badge-ok">0%</span></td>
           </tr><tr>
             <td><strong>Rendimiento 50 VUs</strong></td>
             <td>50</td>
             <td>150</td>
-            <td>412.94 ms</td>
-            <td>466.53 ms</td>
-            <td><strong>485.32 ms</strong></td>
-            <td>103.96 req/s</td>
+            <td>409.2 ms</td>
+            <td>457.17 ms</td>
+            <td><strong>478.37 ms</strong></td>
+            <td>101.61 req/s</td>
             <td><span class="badge-ok">0%</span></td>
           </tr>
         </tbody>
@@ -106,61 +106,61 @@
             <td><strong>Fase 1: Base (25 VUs)</strong></td>
             <td>25</td>
             <td>50</td>
-            <td>203.24 ms</td>
-            <td>196.44 ms</td>
-            <td><strong>289.93 ms</strong></td>
-            <td>292.72 ms</td>
-            <td>102.07 req/s</td>
+            <td>200.9 ms</td>
+            <td>196.15 ms</td>
+            <td><strong>287.47 ms</strong></td>
+            <td>290.41 ms</td>
+            <td>102.96 req/s</td>
             <td><span class="badge-ok">0%</span></td>
           </tr><tr>
             <td><strong>Fase 2: Moderada (50 VUs)</strong></td>
             <td>50</td>
             <td>100</td>
-            <td>387.74 ms</td>
-            <td>466.76 ms</td>
-            <td><strong>493.18 ms</strong></td>
-            <td>511.8 ms</td>
-            <td>101.51 req/s</td>
+            <td>378.13 ms</td>
+            <td>454.42 ms</td>
+            <td><strong>485.94 ms</strong></td>
+            <td>493.54 ms</td>
+            <td>104.51 req/s</td>
             <td><span class="badge-ok">0%</span></td>
           </tr><tr>
             <td><strong>Fase 3: Alta (100 VUs)</strong></td>
             <td>100</td>
             <td>200</td>
-            <td>756.72 ms</td>
-            <td>935.2 ms</td>
-            <td><strong>982.84 ms</strong></td>
-            <td>1017.86 ms</td>
-            <td>101.11 req/s</td>
+            <td>733.41 ms</td>
+            <td>909.96 ms</td>
+            <td><strong>953.36 ms</strong></td>
+            <td>968.19 ms</td>
+            <td>104.93 req/s</td>
             <td><span class="badge-ok">0%</span></td>
           </tr><tr>
             <td><strong>Fase 4: Crítica (180 VUs)</strong></td>
             <td>180</td>
             <td>360</td>
-            <td>1325.61 ms</td>
-            <td>1680.47 ms</td>
-            <td><strong>1717.01 ms</strong></td>
-            <td>1753.47 ms</td>
-            <td>103.19 req/s</td>
+            <td>1290.69 ms</td>
+            <td>1634.23 ms</td>
+            <td><strong>1672.74 ms</strong></td>
+            <td>1714.94 ms</td>
+            <td>105.86 req/s</td>
             <td><span class="badge-ok">0%</span></td>
           </tr><tr>
             <td><strong>Fase 5: Saturación Pool DB (260 VUs)</strong></td>
             <td>260</td>
             <td>260</td>
-            <td>1388.03 ms</td>
-            <td>1426.67 ms</td>
-            <td><strong>2463.23 ms</strong></td>
-            <td>2553.82 ms</td>
-            <td>100.71 req/s</td>
+            <td>1305.75 ms</td>
+            <td>1345.26 ms</td>
+            <td><strong>2381.61 ms</strong></td>
+            <td>2474.47 ms</td>
+            <td>104.73 req/s</td>
             <td><span class="badge-ok">0%</span></td>
           </tr><tr>
             <td><strong>Fase 6: Recuperación / Cooldown (25 VUs)</strong></td>
             <td>25</td>
             <td>50</td>
-            <td>202.59 ms</td>
-            <td>197.63 ms</td>
-            <td><strong>289.54 ms</strong></td>
-            <td>291.69 ms</td>
-            <td>102.25 req/s</td>
+            <td>201.03 ms</td>
+            <td>195.17 ms</td>
+            <td><strong>289.67 ms</strong></td>
+            <td>291.85 ms</td>
+            <td>103.04 req/s</td>
             <td><span class="badge-ok">0%</span></td>
           </tr>
         </tbody>
@@ -174,8 +174,8 @@
       data: {
         labels: ["Rendimiento 20 VUs","Rendimiento 35 VUs","Rendimiento 50 VUs"],
         datasets: [
-          { label: 'Tiempo Respuesta Promedio (ms)', data: [530.14,298.94,412.94], backgroundColor: '#6366f1' },
-          { label: 'Latencia Percentil 95 - p95 (ms)', data: [2223.51,373.6,485.32], backgroundColor: '#f59e0b' },
+          { label: 'Tiempo Respuesta Promedio (ms)', data: [362.11,300.99,409.2], backgroundColor: '#6366f1' },
+          { label: 'Latencia Percentil 95 - p95 (ms)', data: [775.45,387.32,478.37], backgroundColor: '#f59e0b' },
         ]
       }
     });
@@ -185,8 +185,8 @@
       data: {
         labels: ["Fase 1: Base (25 VUs)","Fase 2: Moderada (50 VUs)","Fase 3: Alta (100 VUs)","Fase 4: Crítica (180 VUs)","Fase 5: Saturación Pool DB (260 VUs)","Fase 6: Recuperación / Cooldown (25 VUs)"],
         datasets: [
-          { label: 'Latencia p95 (ms)', data: [289.93,493.18,982.84,1717.01,2463.23,289.54], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.12)', fill: true, tension: 0.3 },
-          { label: 'Latencia Promedio (ms)', data: [203.24,387.74,756.72,1325.61,1388.03,202.59], borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3 }
+          { label: 'Latencia p95 (ms)', data: [287.47,485.94,953.36,1672.74,2381.61,289.67], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.12)', fill: true, tension: 0.3 },
+          { label: 'Latencia Promedio (ms)', data: [200.9,378.13,733.41,1290.69,1305.75,201.03], borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3 }
         ]
       }
     });

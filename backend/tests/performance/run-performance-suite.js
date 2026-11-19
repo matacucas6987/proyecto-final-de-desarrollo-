@@ -3,6 +3,11 @@
  * Levanta el servidor NestJS conectado a Neon PostgreSQL, ejecuta cargas concurrentes reales,
  * calcula métricas (Promedio, p50, p95, p99, Throughput RPS, % Error) y genera un Dashboard HTML con gráficas.
  */
+const dns = require('dns');
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch {}
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');

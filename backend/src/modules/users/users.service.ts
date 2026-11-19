@@ -122,6 +122,13 @@ export class UsersService {
     return await this.findOne(id);
   }
 
+  async adminUpdatePassword(id: string, rawPassword: string): Promise<User> {
+    const user = await this.findOne(id);
+    user.password = await bcrypt.hash(rawPassword.trim(), 10);
+    await this.userRepository.save(user);
+    return await this.findOne(id);
+  }
+
   async remove(id: string): Promise<void> {
     const user = await this.findOne(id);
     await this.userRepository.remove(user);

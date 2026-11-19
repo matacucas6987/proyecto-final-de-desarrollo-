@@ -26,6 +26,10 @@ export const authService = {
     const res = await apiClient.get<ApiResponse<User>>('/auth/profile');
     return res.data.data;
   },
+  changePassword: async (data: { currentPassword: string; newPassword: string }) => {
+    const res = await apiClient.patch<ApiResponse<{ success: boolean; message: string }>>('/auth/change-password', data);
+    return res.data.data;
+  },
 };
 
 // Servicios para Usuarios
@@ -48,6 +52,10 @@ export const usersService = {
   },
   update: async (id: string, data: Partial<User>) => {
     const res = await apiClient.patch<ApiResponse<User>>(`/users/${id}`, data);
+    return res.data.data;
+  },
+  adminResetPassword: async (id: string, password: string) => {
+    const res = await apiClient.patch<ApiResponse<User>>(`/users/${id}/admin-password`, { password });
     return res.data.data;
   },
   delete: async (id: string) => {

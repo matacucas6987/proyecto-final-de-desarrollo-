@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from '../../src/modules/users/users.service';
@@ -16,7 +16,7 @@ import { ReservationStatus } from '../../src/modules/reservations/enums/reservat
 import { FinesService } from '../../src/modules/fines/fines.service';
 import { FineStatus } from '../../src/modules/fines/enums/fine-status.enum';
 
-describe('SIGB Universidad de Madeira - Suite de Pruebas Unitarias (16 Casos)', () => {
+describe('SIGB Universidad de Madeira - Suite de Pruebas Unitarias (20 Casos)', () => {
   // =========================================================================
   // 1. MÓDULO DE USUARIOS Y RBAC (UT-01 a UT-05)
   // =========================================================================
@@ -480,6 +480,103 @@ describe('SIGB Universidad de Madeira - Suite de Pruebas Unitarias (16 Casos)', 
       // Caso de error cuando la multa no existe
       mockFineRepo.findOne.mockResolvedValueOnce(null);
       await expect(finesService.payFine('fine-inexistente')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // =========================================================================
+  // 6. MÓDULO DE GESTIÓN Y SEGURIDAD DE CONTRASEÑAS (UT-17 a UT-20)
+  // =========================================================================
+  describe('Módulo de Gestión de Contraseñas y Seguridad (AuthService & UsersService)', () => {
+    let authService: AuthService;
+    let usersService: UsersService;
+    let usersController: UsersController;
+    let mockUserRepo: any;
+    let mockJwtService: any;
+
+    beforeEach(() => {
+      mockUserRepo = {
+        findOne: jest.fn(),
+        save: jest.fn((u) => Promise.resolve(u)),
+        createQueryBuilder: jest.fn(),
+      };
+      mockJwtService = {
+        signAsync: jest.fn().mockResolvedValue('fake-jwt-token'),
+        verify: jest.fn(),
+      };
+      authService = new AuthService(mockUserRepo, mockJwtService);
+      usersService = new UsersService(mockUserRepo);
+      usersController = new UsersController(usersService, mockJwtService);
+    });
+
+    it('UT-17 [Happy Path]: El usuario debe cambiar su propia contraseña verificando la actual', async () => {
+      const hashedOld = await bcrypt.hash('OldPass123*', 10);
+      const user = {
+        id: 'usr-1',
+        email: 'estudiante@uma.pt',
+        password: hashedOld,
+      };
+
+      const qbMock = {
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(user),
+      };
+      mockUserRepo.createQueryBuilder.mockReturnValue(qbMock);
+
+      const res = await authService.changePassword('usr-1', {
+        currentPassword: 'OldPass123*',
+        newPassword: 'NewSecurePass2026*',
+      });
+
+      expect(res.success).toBe(true);
+      expect(await bcrypt.compare('NewSecurePass2026*', user.password)).toBe(true);
+    });
+
+    it('UT-18 [Edge Case]: Lanza BadRequestException si la contraseña actual no es correcta', async () => {
+      const hashedOld = await bcrypt.hash('CorrectPass123*', 10);
+      const user = {
+        id: 'usr-1',
+        email: 'estudiante@uma.pt',
+        password: hashedOld,
+      };
+
+      const qbMock = {
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(user),
+      };
+      mockUserRepo.createQueryBuilder.mockReturnValue(qbMock);
+
+      await expect(
+        authService.changePassword('usr-1', {
+          currentPassword: 'WrongPassword999',
+          newPassword: 'NewSecurePass2026*',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('UT-19 [Happy Path Admin]: El Administrador debe actualizar la contraseña de cualquier usuario sin contraseña previa', async () => {
+      const targetUser = {
+        id: 'target-uuid-1',
+        fullName: 'Estudiante Prueba',
+        password: 'oldHashedPassword',
+      };
+      mockUserRepo.findOne.mockResolvedValue(targetUser);
+
+      await usersService.adminUpdatePassword('target-uuid-1', 'AdminForcedPass2026*');
+      expect(await bcrypt.compare('AdminForcedPass2026*', targetUser.password)).toBe(true);
+    });
+
+    it('UT-20 [RBAC Admin]: Lanza ForbiddenException si un no-admin intenta cambiar contraseña de otro usuario', async () => {
+      mockJwtService.verify.mockReturnValue({ role: UserRole.ESTUDIANTE });
+
+      const mockReq: any = {
+        headers: { authorization: 'Bearer student-token' },
+      };
+
+      await expect(
+        usersController.adminResetPassword('any-id', 'NewPass123*', mockReq),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

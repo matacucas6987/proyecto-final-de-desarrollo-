@@ -20,7 +20,7 @@
 
 ---
 
-### 1.2 Listado de Pruebas Unitarias Diseñadas y Ejecutadas (16 Casos — Mínimo requerido: 10)
+### 1.2 Listado de Pruebas Unitarias Diseñadas y Ejecutadas (20 Casos — Mínimo requerido: 10)
 
 | ID | Módulo / Método | Tipo de Caso | Descripción y Regla de Negocio Evaluada | Resultado |
 | :--- | :--- | :--- | :--- | :---: |
@@ -40,10 +40,14 @@
 | **UT-14** | `ReservationsService.create` | Cálculo FIFO | Calcula automáticamente la posición en la cola (`queuePosition`) según las reservas pendientes en la misma categoría (`GENERAL` / `TABLETA`). | ✅ PASS |
 | **UT-15** | `FinesService.payFine` | Happy Path | Registra el pago de una multa pendiente transicionando su estado a `PAGADA` con marca de tiempo `paidAt`. | ✅ PASS |
 | **UT-16** | `FinesService.waiveFine` | Edge Case | Condona una multa cambiándola a `CONDONADA`, y lanza `NotFoundException` si se intenta cobrar una multa inexistente. | ✅ PASS |
+| **UT-17** | `AuthService.changePassword` | Happy Path | Permite al usuario autenticado cambiar su contraseña validando exitosamente la actual y persistiendo el nuevo hash. | ✅ PASS |
+| **UT-18** | `AuthService.changePassword` | Edge Case | Lanza `BadRequestException` (HTTP 400) si la contraseña actual ingresada no coincide con el hash almacenado. | ✅ PASS |
+| **UT-19** | `UsersService.adminUpdatePassword` | Happy Path | El Administrador actualiza directamente la contraseña de cualquier usuario sin requerir la clave previa. | ✅ PASS |
+| **UT-20** | `UsersController.adminResetPassword` | Regla RBAC | Lanza `ForbiddenException` (HTTP 403) si un usuario no administrador intenta cambiar la contraseña de otro usuario. | ✅ PASS |
 
 ---
 
-### 1.3 Listado de Pruebas de Integración E2E / API (8 Casos — Mínimo requerido: 5)
+### 1.3 Listado de Pruebas de Integración E2E / API (10 Casos — Mínimo requerido: 5)
 
 | ID | Módulos que Interactúan | Endpoint(s) Consumidos | Descripción del Flujo de Integración Verificado | Resultado |
 | :--- | :--- | :--- | :--- | :---: |
@@ -55,31 +59,33 @@
 | **IT-06** | `LoansModule` + `ResourcesModule` + `RenewalsModule` | `POST /api/loans`<br>`POST /api/renewals`<br>`PATCH /api/loans/:id/return` | Flujo transversal completo: Préstamo cambia recurso a `Prestado` -> Renovación extiende plazo (`renewalNumber: 1`) -> Devolución libera recurso a `Disponible`. | ✅ PASS |
 | **IT-07** | `ReservationsController` + `ReservationsService` + `Neon DB` | `POST /api/reservations`<br>`PATCH /api/reservations/:id/cancel` | Encolamiento FIFO en lista de espera y posterior cancelación de la reserva verificando persistencia de estado `CANCELADA`. | ✅ PASS |
 | **IT-08** | `FinesController` + `FinesService` + `LoansModule` | `POST /api/fines`<br>`PATCH /api/fines/:id/pay` | Generación de sanción pecuniaria vinculada a un préstamo y liquidación de pago con estado `PAGADA` y timestamp `paidAt`. | ✅ PASS |
+| **IT-09** | `AuthModule` + `UsersService` + `Neon DB` | `PATCH /api/auth/change-password`<br>`POST /api/auth/login` | Cambio propio de contraseña: rechaza con 400 ante clave actual errónea, actualiza con éxito y valida inicio de sesión con nueva credencial. | ✅ PASS |
+| **IT-10** | `UsersController` + `UsersService` + `RBAC` + `Neon DB` | `PATCH /api/users/:id/admin-password`<br>`POST /api/auth/login` | Gestión global de claves: prohíbe con 403 a no-admins, permite a ADMIN reasignar contraseña y valida acceso del usuario afectado. | ✅ PASS |
 
 ---
 
 ### 1.4 Resumen de Ejecución y Cobertura de Código (`npm run test:cov`)
 
 ```text
-PASS tests/unit/business-logic.unit.spec.ts (16 passed)
-PASS tests/integration/api.integration.spec.ts (8 passed)
+PASS tests/unit/business-logic.unit.spec.ts (20 passed)
+PASS tests/integration/api.integration.spec.ts (10 passed)
 
 -----------------------------|---------|----------|---------|---------|
 File                         | % Stmts | % Branch | % Funcs | % Lines |
 -----------------------------|---------|----------|---------|---------|
-All files                    |   74.34 |    44.69 |    61.7 |   72.96 |
+All files                    |   75.30 |    48.00 |   63.26 |   74.10 |
  common/filters              |   77.77 |    41.17 |     100 |      75 |
  common/interceptors         |     100 |      100 |     100 |     100 |
- modules/auth                |   76.71 |    45.45 |      90 |   75.36 |
+ modules/auth                |   78.16 |       50 |   91.66 |    77.1 |
  modules/fines               |    82.6 |     62.5 |   57.14 |   80.95 |
  modules/loans               |   85.18 |     37.5 |   58.33 |      84 |
  modules/renewals            |   85.71 |       50 |      50 |   83.87 |
  modules/reservations        |   78.72 |     37.5 |   64.28 |   76.74 |
  modules/resources           |   70.49 |    43.75 |      75 |   68.42 |
- modules/users               |   72.94 |    56.09 |   46.66 |    71.6 |
+ modules/users               |   76.23 |    60.78 |   52.94 |   75.25 |
 -----------------------------|---------|----------|---------|---------|
 Test Suites: 2 passed, 2 total
-Tests:       24 passed, 24 total
+Tests:       30 passed, 30 total
 ```
 
 ---
@@ -189,3 +195,38 @@ Con base en los resultados obtenidos en las tres dimensiones de validación (Fun
    * **Impacto:** Mantener el payload JSON por debajo de 15 KB y tiempos de respuesta estables (`< 200 ms`) independientemente del crecimiento histórico de la biblioteca.
 4. **[Prioridad Media — Automatización CI/CD de la Suite Funcional]:**
    * **Acción:** Ejecutar `npm run test:unit` y `npm run test:integration` como compuerta de calidad obligatoria en cada *Pull Request* antes de desplegar los contenedores Docker (`node:24-alpine3.24`).
+
+---
+
+## SECCIÓN 6: Ajustes de Seguridad, Usabilidad y Expansión del Catálogo Bibliográfico
+
+En respuesta a la auditoría de seguridad y a las necesidades institucionales de la Universidad de Madeira, se incorporaron las siguientes mejoras en este ciclo:
+
+### 6.1 Corrección Crítica de Seguridad en la Página de Login
+* **Diagnóstico previo:** La pantalla de autenticación incluía una tarjeta con los datos de inicio de sesión de la cuenta administradora (`admin@uma.pt` / `Admin123*`) junto a un botón de "Autocompletar", lo que permitía que cualquier visitante accediera con privilegios absolutos.
+* **Solución aplicada:** Se eliminó de raíz la tarjeta de credenciales, el botón de autocompletado y se reemplazó el placeholder por uno genérico y neutral (`ejemplo@uma.pt ó MAT12345`), garantizando que solo usuarios autorizados puedan autenticarse.
+
+### 6.2 Mini Ventana (Modal) de Perfil de Usuario
+* **Ubicación y acceso:** En el `Navbar` superior se añadió el botón visible **"Mi Perfil"** y se habilitó la interacción directa sobre el avatar del usuario autenticado.
+* **Contenido presentado:** Despliega una mini ventana interactiva (`ProfileModal.tsx`) con los datos completos del perfil: nombre completo, rol con insignia visual, estado de cuenta, código institucional, documento de identidad, correo institucional, plan de estudios/carrera y semestre cursado.
+
+### 6.3 Procedimiento de Doble Confirmación para Cambio de Contraseña
+* **Flujo estricto implementado:**
+  1. **Paso 1:** El usuario debe ingresar y confirmar su contraseña actual en **dos campos independientes**. El sistema valida que ambos coincidan entre sí.
+  2. **Paso 2:** Al superarse el Paso 1, se desbloquea el campo para ingresar la **nueva contraseña** institucional (mínimo 6 caracteres).
+  3. **Persistencia:** Al enviar la solicitud, el endpoint `PATCH /api/auth/change-password` valida la contraseña contra el hash de la base de datos en Neon, hashea la nueva clave con `bcryptjs` y actualiza el registro.
+
+### 6.4 Módulo de Administración de Contraseñas (Rol ADMIN)
+* **Funcionalidad:** En la tabla de **Gestión de Usuarios** (`Users.tsx`), el Administrador dispone de un botón de acción rápida **"Clave"** (🔑) por cada usuario registrado.
+* **Prestaciones:**
+  * Permite asignar directamente una nueva contraseña sin conocer la clave actual del usuario.
+  * Incluye un generador automático de contraseñas seguras y un botón de un clic para **copiar la clave generada al portapapeles**.
+  * Endpoint seguro: `PATCH /api/users/:id/admin-password`, protegido por verificación RBAC en backend (rechazo con `403 Forbidden` a cualquier otro rol).
+
+### 6.5 Catálogo Ampliado: 50 Libros de Carreras en PostgreSQL Neon
+Se desarrolló y ejecutó el seeder `backend/src/seeds/seed-books.ts` (`npm run seed:books`), poblando la base de datos con **50 obras bibliográficas especializadas** distribuidas entre:
+* **Ingeniería (13 libros):** Software, Inteligencia Artificial, Redes Neuronales, Termodinámica, Ciberseguridad, Circuitos y Robótica. (Códigos: `ING-SOF-001` al `013`).
+* **Psicología (13 libros):** Psicología Cognitiva, DSM-5-TR, Terapia Cognitivo-Conductual, Neuropsicología, Psicometría y Dinámicas Sociales. (Códigos: `PSI-COG-001` al `013`).
+* **Mercadeo (12 libros):** Marketing Digital, Branding, Neuromarketing, Precios Estratégicos, Trade Marketing y Experiencia del Cliente. (Códigos: `MER-EST-001` al `012`).
+* **Derecho (12 libros):** Derecho Constitucional, Código Civil Comentado, Penal, Laboral, Comercial, Administrativo y Filosofía del Derecho. (Códigos: `DER-CON-001` al `012`).
+* **Asignación de colecciones:** Distribuidos según su tipología académica en la Colección **General** (con entidad relacional `collection_general_books`), Colección **Reserva** (`collection_reserve_books`) y Colección **Referencia** (`collection_reference_materials`).

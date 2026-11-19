@@ -17,7 +17,8 @@
     "test:unit": "jest tests/unit --verbose",
     "test:integration": "jest tests/integration --verbose",
     "test:cov": "jest --coverage --verbose",
-    "test:perf": "node tests/performance/run-performance-suite.js"
+    "test:perf": "node tests/performance/run-performance-suite.js",
+    "seed:books": "ts-node src/seeds/seed-books.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",

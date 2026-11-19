@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Req,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
@@ -84,6 +85,39 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @Patch(':id/admin-password')
+  async adminResetPassword(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('password') password: string,
+    @Req() req: Request,
+  ) {
+    let callerRole: UserRole | undefined;
+    const authHeader = req.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const payload: any = this.jwtService.verify(token);
+        callerRole = payload.role;
+      } catch {
+        // Token no válido o expirado
+      }
+    }
+
+    if (callerRole !== UserRole.ADMIN) {
+      throw new ForbiddenException(
+        'Solo los administradores pueden cambiar las contraseñas de otros usuarios.',
+      );
+    }
+
+    if (!password || String(password).trim().length < 6) {
+      throw new BadRequestException(
+        'La nueva contraseña debe tener al menos 6 caracteres.',
+      );
+    }
+
+    return await this.usersService.adminUpdatePassword(id, String(password).trim());
   }
 
   @Delete(':id')

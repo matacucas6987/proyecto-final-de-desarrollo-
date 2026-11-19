@@ -1,10 +1,12 @@
-import React from 'react';
-import { BookOpen, LogOut, User as UserIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { BookOpen, LogOut, User as UserIcon, UserCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types';
+import ProfileModal from '../common/ProfileModal';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const getRoleBadge = (role?: UserRole) => {
     switch (role) {
@@ -72,25 +74,41 @@ export const Navbar: React.FC = () => {
 
         {/* User profile avatar and details */}
         {user ? (
-          <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
-            <div className="w-8 h-8 rounded-full bg-indigo-600 text-white font-semibold flex items-center justify-center text-xs shadow-sm">
-              {getInitials(user.fullName)}
-            </div>
-            <div className="hidden sm:block text-left text-xs">
-              <span className="font-semibold text-slate-800 block leading-tight">
-                {user.fullName}
-              </span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span
-                  className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium border ${roleInfo.classes}`}
-                >
-                  {roleInfo.label}
-                </span>
-                <span className="text-[11px] text-slate-400 font-mono">
-                  {user.code}
-                </span>
+          <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
+            <button
+              onClick={() => setIsProfileModalOpen(true)}
+              className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-50 transition-colors text-left"
+              title="Ver mi perfil de usuario"
+            >
+              <div className="w-8 h-8 rounded-full bg-indigo-600 text-white font-semibold flex items-center justify-center text-xs shadow-sm ring-2 ring-indigo-50">
+                {getInitials(user.fullName)}
               </div>
-            </div>
+              <div className="hidden sm:block text-left text-xs">
+                <span className="font-semibold text-slate-800 block leading-tight hover:text-indigo-600 transition-colors">
+                  {user.fullName}
+                </span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span
+                    className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium border ${roleInfo.classes}`}
+                  >
+                    {roleInfo.label}
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    {user.code}
+                  </span>
+                </div>
+              </div>
+            </button>
+
+            {/* Profile modal button */}
+            <button
+              onClick={() => setIsProfileModalOpen(true)}
+              title="Abrir Mi Perfil y Seguridad"
+              className="px-2.5 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors flex items-center gap-1"
+            >
+              <UserCheck className="w-3.5 h-3.5 text-indigo-600" />
+              <span className="hidden md:inline">Mi Perfil</span>
+            </button>
 
             {/* Logout button */}
             <button
@@ -108,6 +126,12 @@ export const Navbar: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Mini ventana / Modal de perfil */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
     </header>
   );
 };

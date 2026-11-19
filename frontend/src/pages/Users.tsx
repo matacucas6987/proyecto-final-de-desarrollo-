@@ -400,22 +400,24 @@ export const Users: React.FC = () => {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleToggleActive(item)}
-                            className={`p-1.5 rounded-lg transition-colors ${
+                            className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors inline-flex items-center gap-1 ${
                               item.isActive
-                                ? 'text-amber-600 hover:bg-amber-50'
-                                : 'text-emerald-600 hover:bg-emerald-50'
+                                ? 'text-amber-700 bg-amber-50 hover:bg-amber-100 border-amber-200'
+                                : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border-emerald-200'
                             }`}
                             title={item.isActive ? 'Desactivar usuario' : 'Activar usuario'}
                           >
-                            <Power className="w-4 h-4" />
+                            <Power className="w-3.5 h-3.5" />
+                            <span>{item.isActive ? 'Inactivar' : 'Activar'}</span>
                           </button>
                           {isAdmin && (
                             <button
                               onClick={() => handleDelete(item.id, item.fullName)}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              className="px-2 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-lg transition-colors inline-flex items-center gap-1"
                               title="Eliminar usuario (Solo Admin)"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Eliminar</span>
                             </button>
                           )}
                         </div>

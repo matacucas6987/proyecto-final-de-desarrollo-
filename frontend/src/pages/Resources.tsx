@@ -337,9 +337,25 @@ export const Resources: React.FC = () => {
           />
         </div>
 
-        {/* Filtro por estado */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
+        {/* Filtro por estado y botón rápido Solo Disponibles (Mejora de Usabilidad U-02) */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() =>
+              setStatusFilter(
+                statusFilter === ResourceStatus.DISPONIBLE ? 'ALL' : ResourceStatus.DISPONIBLE,
+              )
+            }
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+              statusFilter === ResourceStatus.DISPONIBLE
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+            }`}
+          >
+            {statusFilter === ResourceStatus.DISPONIBLE ? '✓ Solo Disponibles' : 'Solo Disponibles'}
+          </button>
+
+          <span className="text-xs font-medium text-slate-500 flex items-center gap-1 ml-1">
             <Filter className="w-3.5 h-3.5" /> Estado:
           </span>
           <select

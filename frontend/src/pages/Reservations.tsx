@@ -376,19 +376,21 @@ export const Reservations: React.FC = () => {
                               {canManageLoans && (
                                 <button
                                   onClick={() => handleAssign(item.id)}
-                                  className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                  className="px-2.5 py-1 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors inline-flex items-center gap-1"
                                   title="Marcar como asignado"
                                 >
-                                  <CheckCircle2 className="w-4 h-4" />
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>Asignar</span>
                                 </button>
                               )}
                               {(canManageLoans || item.userId === currentUser?.id) && (
                                 <button
                                   onClick={() => handleCancel(item.id)}
-                                  className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                  className="px-2.5 py-1 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors inline-flex items-center gap-1"
                                   title="Cancelar reservación"
                                 >
-                                  <XCircle className="w-4 h-4" />
+                                  <XCircle className="w-3.5 h-3.5" />
+                                  <span>Cancelar</span>
                                 </button>
                               )}
                             </>
@@ -396,10 +398,11 @@ export const Reservations: React.FC = () => {
                           {canManageLoans && (
                             <button
                               onClick={() => handleDelete(item.id)}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              className="px-2 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-lg transition-colors inline-flex items-center gap-1"
                               title="Eliminar registro"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Eliminar</span>
                             </button>
                           )}
                         </div>
